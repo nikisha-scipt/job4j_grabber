@@ -1,6 +1,6 @@
 # java grabber
 launch of the project: mvn clean install
-##Описание.
+## Описание.
 
 Система запускается по расписанию. Период запуска указывается в настройках - app.properties.
 
