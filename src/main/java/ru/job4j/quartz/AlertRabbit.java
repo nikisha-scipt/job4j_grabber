@@ -45,6 +45,7 @@ public class AlertRabbit implements Job {
                 String[] temp = line.split("=", 2);
                 valid(temp);
                 maps.put(temp[0], temp[1]);
+
             }
         } catch (IOException e) {
             e.printStackTrace();
