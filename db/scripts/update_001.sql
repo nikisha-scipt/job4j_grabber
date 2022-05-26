@@ -1,4 +1,4 @@
-create table if not exists grabbers (
-    id serial primary key,
-    name text
+create table rabbit (
+	id serial primary key,
+	created_date timestamp
 );
