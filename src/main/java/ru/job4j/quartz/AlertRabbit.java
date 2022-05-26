@@ -4,7 +4,7 @@ import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 
 import java.io.*;
-import java.util.HashMap;
+import java.util.Properties;
 
 import static org.quartz.JobBuilder.*;
 import static org.quartz.TriggerBuilder.*;
@@ -12,8 +12,7 @@ import static org.quartz.SimpleScheduleBuilder.*;
 
 public class AlertRabbit implements Job {
 
-    private static HashMap<String, String> maps = new HashMap<>();
-    private static int interval;
+    private static Properties config = new Properties();
 
     public static void main(String[] args) {
         config();
@@ -24,7 +23,7 @@ public class AlertRabbit implements Job {
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
             readFile();
-            interval = Integer.parseInt(maps.get("rabbit.interval"));
+            int interval = Integer.parseInt(config.getProperty("rabbit.interval"));
             JobDetail job = newJob(AlertRabbit.class).build();
             SimpleScheduleBuilder times = simpleSchedule()
                     .withIntervalInSeconds(interval)
@@ -40,13 +39,8 @@ public class AlertRabbit implements Job {
     }
 
     private static void readFile() {
-        try (BufferedReader reader = new BufferedReader(new FileReader("./src/main/resources/rabbit.properties"))) {
-            for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-                String[] temp = line.split("=", 2);
-                valid(temp);
-                maps.put(temp[0], temp[1]);
-
-            }
+        try (InputStream input = AlertRabbit.class.getClassLoader().getResourceAsStream("rabbit.properties")) {
+            config.load(input);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -57,10 +51,5 @@ public class AlertRabbit implements Job {
         System.out.println("Rabbit runs here ...");
     }
 
-    private static void valid(String[] temp) {
-        if (temp.length != 2 || temp[0].isEmpty() || temp[1].isEmpty()) {
-            throw new IllegalArgumentException();
-        }
-    }
 
 }
