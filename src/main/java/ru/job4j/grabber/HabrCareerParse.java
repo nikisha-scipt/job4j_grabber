@@ -19,12 +19,15 @@ public class HabrCareerParse {
         Elements rows = document.select(".vacancy-card__inner");
         rows.forEach(row -> {
             Element titleElement = row.select(".vacancy-card__title").first();
+            assert titleElement != null;
             Element linkElement = titleElement.child(0);
             Element dataElement = row.selectFirst(".vacancy-card__date");
+            assert dataElement != null;
+            Element dataLink = dataElement.child(0);
             String vacancyName = titleElement.text();
             String vacancyDate = dataElement.text();
-            String link = String.format("%s%s", SOURCE_LINK, linkElement.attr("href"));
-            System.out.printf("%s %s date:%s%n", vacancyName, link, vacancyDate);
+            String link = String.format("%s%s %s", SOURCE_LINK, linkElement.attr("href"), dataLink.attr("datetime"));
+            System.out.printf("%s: %s %s%n", vacancyDate, vacancyName, link);
         });
     }
 
