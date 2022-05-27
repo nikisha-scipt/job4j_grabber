@@ -33,5 +33,14 @@ public class HabrCareerParse {
         }
     }
 
+    private static String retrieveDescription(String link) throws IOException {
+        StringBuilder res = new StringBuilder();
+        Connection connection = Jsoup.connect(link);
+        Document document = connection.get();
+        res.append("Вакансия: ").append(document.select(".page-title__title").text()).append(System.lineSeparator());
+        res.append(document.select(".style-ugc").text()).append(System.lineSeparator());
+        return res.toString();
+    }
+
 
 }
