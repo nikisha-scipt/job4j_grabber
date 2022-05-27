@@ -57,7 +57,7 @@ public class RabbitDBReload {
         return DriverManager.getConnection(url, login, password);
     }
 
-    public static class Rabbit implements Job, AutoCloseable {
+    public static class Rabbit implements Job {
 
         Connection connection;
 
@@ -73,12 +73,6 @@ public class RabbitDBReload {
             System.out.println("Add a new data on data base");
         }
 
-        @Override
-        public void close() throws Exception {
-            if (connection != null) {
-                connection.close();
-            }
-        }
     }
 
 }
