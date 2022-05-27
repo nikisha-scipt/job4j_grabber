@@ -12,7 +12,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
-public class HabrCareerParse implements DateTimeParser {
+public class HabrCareerParse {
 
     private static final String SOURCE_LINK = "https://career.habr.com";
     private static final String PAGE_LINK = String.format("%s/vacancies/java_developer", SOURCE_LINK);
@@ -31,14 +31,9 @@ public class HabrCareerParse implements DateTimeParser {
             Element dataLink = dataElement.child(0);
             String vacancyName = titleElement.text();
             String vacancyDate = dataElement.text();
-            String link = String.format("%s%s %s", SOURCE_LINK, linkElement.attr("href"), habr.parse(dataLink.attr("datetime")));
+            String link = String.format("%s%s %s", SOURCE_LINK, linkElement.attr("href"), dataLink.attr("datetime"));
             System.out.printf("%s: %s %s%n", vacancyDate, vacancyName, link);
         });
     }
 
-    @Override
-    public LocalDateTime parse(String parse) {
-        Instant timestamp = Instant.parse(parse);
-        return LocalDateTime.ofInstant(timestamp, ZoneOffset.UTC);
-    }
 }
