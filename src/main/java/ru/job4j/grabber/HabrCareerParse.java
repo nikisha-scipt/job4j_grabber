@@ -17,6 +17,7 @@ public class HabrCareerParse implements Parse {
     private static final String SOURCE_LINK = "https://career.habr.com";
     private static final String PAGE_LINK = String.format("%s/vacancies/java_developer?page=", SOURCE_LINK);
     private final DateTimeParser dateTimeParser;
+    private int id;
     private List<Post> posts;
 
     public HabrCareerParse(DateTimeParser dateTimeParser) {
@@ -81,6 +82,7 @@ public class HabrCareerParse implements Parse {
                 }
                 HabrCareerDateTimeParser date = new HabrCareerDateTimeParser();
                 Post post = new Post(title.text(), linkVacancy, descriptionVacancy, date.parse(dataLink.attr("datetime")));
+                post.setId(++id);
                 result.add(post);
             });
         } catch (IOException e) {
