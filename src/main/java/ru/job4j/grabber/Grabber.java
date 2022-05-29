@@ -7,6 +7,11 @@ import ru.job4j.grabber.utils.Parse;
 import ru.job4j.grabber.utils.Store;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
@@ -68,12 +73,34 @@ public class Grabber implements Grab {
         }
     }
 
+    public void web(Store store) {
+        new Thread(() -> {
+            try (ServerSocket server = new ServerSocket(Integer.parseInt(config.getProperty("port")))) {
+                while (!server.isClosed()) {
+                    Socket socket = server.accept();
+                    try (OutputStream out = socket.getOutputStream()) {
+                        out.write("HTTP/1.1 200 OK\r\n\r\n".getBytes(StandardCharsets.UTF_8));
+                        for (Post post : store().getAll()) {
+                            out.write(post.toString().getBytes(Charset.forName("Windows-1251")));
+                            out.write(System.lineSeparator().getBytes(StandardCharsets.UTF_8));
+                        }
+                    } catch (IOException | SQLException | ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
     public static void main(String[] args) throws IOException, SQLException, ClassNotFoundException, SchedulerException {
         Grabber grabber = new Grabber();
+        grabber.cfg();
         Parse parse = new HabrCareerParse(new HabrCareerDateTimeParser());
         Scheduler scheduler = grabber.scheduler();
-        grabber.cfg();
         Store store = grabber.store();
         grabber.init(parse, store, scheduler);
+        grabber.web(store);
     }
 }

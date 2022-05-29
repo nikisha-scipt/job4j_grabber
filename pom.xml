@@ -151,7 +151,7 @@
                             <finalName>grabber</finalName>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>ru.job4j.grabber.HabrCareerParse</mainClass>
+                                    <mainClass>ru.job4j.grabber.Grabber</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
