@@ -32,7 +32,7 @@ public class PsqlStore implements Store, AutoCloseable {
                 + "description, "
                 + "link, "
                 + "created) "
-                + " values (?, ?, ?, ?);",
+                + " values (?, ?, ?, ?) on conflict (link) do nothing;",
                 Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, post.getTitle());
             statement.setString(2, post.getDescription());
@@ -95,16 +95,4 @@ public class PsqlStore implements Store, AutoCloseable {
         }
     }
 
-    public static void main(String[] args) throws SQLException, ClassNotFoundException {
-        Properties config = new Properties();
-        try (InputStream reader = PsqlStore.class.getClassLoader().getResourceAsStream("rabbit.properties")) {
-            config.load(reader);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        PsqlStore store = new PsqlStore(config);
-        Post temp = new Post("test", "test", "test", LocalDateTime.now());
-        store.save(temp);
-        System.out.println(store.getAll());
-    }
 }
