@@ -22,6 +22,7 @@ import static org.quartz.TriggerBuilder.newTrigger;
 public class Grabber implements Grab {
 
     private final Properties config = new Properties();
+    private static final String SOURCE_LINK = "https://career.habr.com/vacancies/java_developer?page=";
 
     public Store store() throws SQLException, ClassNotFoundException {
         return new PsqlStore(config);
@@ -65,7 +66,7 @@ public class Grabber implements Grab {
             Store store = (Store) map.get("store");
             Parse parse = (Parse) map.get("parse");
             /* TODO impl logic */
-            List<Post> res = parse.list("https://career.habr.com/vacancies/java_developer?page=1");
+            List<Post> res = parse.list(SOURCE_LINK);
             for (Post row : res) {
                 store.save(row);
             }
