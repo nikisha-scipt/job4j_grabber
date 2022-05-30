@@ -27,56 +27,44 @@ public class HabrCareerParse implements Parse {
         StringBuilder res = new StringBuilder();
         Connection connection = Jsoup.connect(link);
         Document document = connection.get();
-        Element descriptionElement = document.selectFirst(".style-ugc");
+        Element descriptionElement = document.selectFirst(".job_show_description__vacancy_description");
         assert descriptionElement != null;
-        res.append(descriptionElement.text());
+        descriptionElement.child(0).getAllElements().forEach(e -> res.append(e.text()).append(System.lineSeparator()));
         return res.toString();
     }
 
     @Override
     public List<Post> list(String link) {
         List<Post> result = new ArrayList<>();
-        try {
-            Connection connection = Jsoup.connect(link);
-            Document document = connection.get();
-            Elements rows = document.select(".vacancy-card__inner");
-            rows.forEach(row -> {
-                Element title = row.selectFirst(".vacancy-card__title");
-                Element date = row.selectFirst(".vacancy-card__date");
-                assert title != null;
-                String linkVacancy = getElement(title);
-                String descriptionVacancy = null;
-                try {
-                    descriptionVacancy = retrieveDescription(linkVacancy);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                assert date != null;
-                Post post = new Post(title.text(),
-                        linkVacancy,
-                        descriptionVacancy,
-                        dateTimeParser.parse(date.child(0).attr("datetime")));
-                result.add(post);
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (int i = 1; i <= 5; i++) {
+            try {
+                Connection connection = Jsoup.connect(link + i);
+                Document document = connection.get();
+                Elements rows = document.select(".vacancy-card__inner");
+                rows.forEach(row -> {
+                    try {
+                        result.add(getPost(row));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return result;
     }
 
-    private String getElement(Element element) {
-        StringBuilder res  = new StringBuilder();
-        Element elementLink = element.child(0);
-        res.append(SOURCE_LINK).append(elementLink.attr("href"));
-        return res.toString();
+    private Post getPost(Element element) throws IOException {
+        Element title = element.selectFirst(".vacancy-card__title");
+        assert  title != null;
+        Element titleLink = title.child(0);
+        String linkVacancy = SOURCE_LINK + titleLink.attr("href");
+        Element dataElement = element.selectFirst(".vacancy-card__date");
+        assert dataElement != null;
+        Element dataLink = dataElement.child(0);
+        String descriptionVacancy = retrieveDescription(linkVacancy);
+        return new Post(title.text(), linkVacancy, descriptionVacancy, dateTimeParser.parse(dataLink.attr("datetime")));
     }
 
-    public static void main(String[] args) {
-        HabrCareerParse habr = new HabrCareerParse(new HabrCareerDateTimeParser());
-        List<Post> arr = new ArrayList<>();
-        for (int i = 1; i <= 5; i++) {
-            arr = habr.list(PAGE_LINK + i);
-        }
-        System.out.println(arr);
-    }
 }
